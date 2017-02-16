@@ -19,24 +19,20 @@ public class FileUtil {
 //            int num = book.getNumberOfSheets();
             // 获得第一个工作表对象
             Sheet sheet = book.getSheet(0);
-            String schoolName=sheet.getCell(1,3).getContents(); //获取学院信息
+//            String schoolName=sheet.getCell(1,3).getContents(); //获取学院信息
             int Rows = sheet.getRows();         //行
             int Cols = sheet.getColumns();      //列
             //列名，行名，读取时候按照（列，行来进行读取）
-            int colsOfSchoolName=0;
-            int rolsOfSchoolName=0;//学院
-
-            int colsOfClassName=0;
-            int rolsOfclassName=0;//班级
-
-            int colsOfStuName=0;
-            int rolsOfStuName=0;//姓名
-
-            int colsOfAwards=0;
-            int rolsOfAwards=0;//所获奖项
-
-            int colsOfMarks=0;
-            int rolsOfMarks=0;//分值
+            int colsOfSchoolName=   0;
+            int rolsOfSchoolName=   0;//学院
+            int colsOfClassName=    0;
+            int rolsOfclassName=    0;//班级
+            int colsOfStuName=      0;
+            int rolsOfStuName=      0;//姓名
+            int colsOfAwards=       0;
+            int rolsOfAwards=       0;//所获奖项
+            int colsOfMarks=        0;
+            int rolsOfMarks=        0;//分值
             for (int i = 0; i < Cols; ++i) {
                 for (int j = 0; j < Rows; ++j) {
                     // getCell(Col"列",Row"行")获得单元格的值
@@ -59,28 +55,16 @@ public class FileUtil {
                     if(sheet.getCell(i,j).getContents().equals("分值")) {
                         colsOfMarks = i;
                         rolsOfMarks = j;
-                        break;
                     }
-
                 }
             }
-            for(int school=rolsOfSchoolName+1,
-                    className=rolsOfclassName+1,
-                    StuName=rolsOfStuName+1,
-                    awards=rolsOfAwards,
-                    marks=rolsOfMarks+1;
-                school<(Rows-rolsOfSchoolName);
-                    school++,
-                    className++,
-                    StuName++,
-                    awards++,
-                    marks++){
+            for(int school=rolsOfSchoolName+1;school<(Rows-rolsOfSchoolName);school++){
                 Map<String,Object> map=new HashMap<>();
-                map.put("school",sheet.getCell(colsOfSchoolName,school).getContents());
-                map.put("class",sheet.getCell(colsOfClassName,className).getContents());
-                map.put("name",sheet.getCell(colsOfStuName,StuName).getContents());
-                map.put("award",sheet.getCell(colsOfAwards,awards).getContents());
-                map.put("marks",sheet.getCell(colsOfMarks,marks).getContents());
+                map.put("school",sheet.getCell(colsOfSchoolName,school   ).getContents());
+                map.put("class",sheet.getCell(colsOfClassName,  school   ).getContents());
+                map.put("name",sheet.getCell(colsOfStuName,     school   ).getContents());
+                map.put("award",sheet.getCell(colsOfAwards,     school   ).getContents());
+                map.put("marks",sheet.getCell(colsOfMarks,      school   ).getContents());
                 data.add(map);
             }
             book.close();
