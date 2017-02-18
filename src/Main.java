@@ -19,6 +19,8 @@ public class Main {
     private static String OUTPUT_PATH="E:\\Chaos\\IntiliJ Java Project\\TCAS\\output\\".replace("\\\\","/");
     private static final List<Map<String ,Object>> list_ofData=FileUtil.readExcel(EXCEL_PATH);
     private static final HashMap<String,Object> marksMap=getMarksMap(list_ofData);
+    private static List<String> classlist=new ArrayList<>();
+    private static List<String > awardsList=new ArrayList<>();
 
     public static void main(String args[]) throws Exception{
 
@@ -32,7 +34,6 @@ public class Main {
             String awards=(String )map.get("award");
             awardsSet.add(awards);
         }
-        List<String > awardsList=new ArrayList<>();
         for(String str:awardsSet){
             awardsList.add(str);
         }
@@ -41,7 +42,6 @@ public class Main {
             String class_=(String )map.get("class");
             classSet.add(class_);
         }
-        List<String> classlist=new ArrayList<>();
         for (String str:classSet){
             classlist.add(str);
         }
@@ -142,17 +142,145 @@ public class Main {
 
     /**
      * 生成Word
+     * 一开始下面这段代码只有我和上帝看得懂
+     * 过了一阵子之后，这段代码就只有上帝自己看得懂了
+     *
      * @param data  数据 data[奖项编号][班级编号][人员编号]
-     * @param awardsNum arr[奖项编号][班级数量]=这个班级获得这个奖项的人数
-     * @param classInAwards arr[奖项编号]=这个奖项总共有多少个班级获得
+     * @param awardsNum awardsNum[奖项编号][班级数量]=这个班级获得这个奖项的人数
+     * @param classInAwards classInAwards[奖项编号]=这个奖项总共有多少个班级获得
      * @throws Exception IO异常
      */
     public static void wordOutPut(String[][][] data,int[][] awardsNum,int[] classInAwards) throws Exception{
         String out_path=OUTPUT_PATH+"test.doc";
         int num=0;
-        for(int i=0;i<data.length;i++){
-            if(classInAwards[i]%4==0){
+        for(int i=0;i<data.length;i++){     //________________________________i是奖项的编号
 
+            if(classInAwards[i]%4==0){      //这个奖项最后一页套用wt4
+
+                int ye=classInAwards[i]/4;
+                for(int j=0;j<ye;j++) {          //每页每页的生成
+                    InputStream is = new FileInputStream(WT_PATH);      //导入模板
+                    HWPFDocument doc = new HWPFDocument(is);
+                    Range range = doc.getRange();       //获取这一页模板上面的文字
+                    int j1 = j * 4;                //j1=0,4,8,12...___________________这是班级的编号
+                    int classFlag = 1;            //作为${clssName1}和${stuName1}的索引
+                    for (int k = j1; k < j1 + 4; k++) {   //对应每页的4个班的班级的编号
+                        String class_name_X = classlist.get(i);       //数据
+                        String stu_name_X = "";
+                        for (int m = 0; m < awardsNum[i][j1]; m++) {     //_____________这是学生的编号
+                            stu_name_X = stu_name_X + data[i][j1][m] + "    ";
+                        }
+                        if(k%4==0){
+                            range.replaceText("${schoolName}", "护理学院");
+                            range.replaceText("${marks}", marksOfAwards(awardsList.get(i)));
+                        }
+                        range.replaceText("${clssName" + classFlag + "}", class_name_X);
+                        range.replaceText("${stuName" + classFlag + "}", stu_name_X);
+                        classFlag++;
+                    }
+                    range.replaceText("${year}",""+Calendar.getInstance().get(Calendar.YEAR));
+                    range.replaceText("${award}", awardsList.get(i));
+
+                    OutputStream os = new FileOutputStream(OUTPUT_PATH + awardsList.get(i) + j1 + ".doc");
+                    //把doc输出到输出流中
+                    doc.write(os);
+                    //关闭输出流，这里每一页的生成，都对应一个输入流和一个输出流，所以每一页生成完毕之后都要关闭一次输入输出流
+                    try {
+                        os.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    //关闭输入流
+                    try {
+                        is.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }
+            else {          //这个奖项最后一页套用wt1或者2或者3
+                int ye=classInAwards[i]/4;
+                int yeLast=classInAwards[i]%4;
+                for(int j=0;j<ye;j++) {          //每页每页的生成
+                    InputStream is = new FileInputStream(WT_PATH);      //导入模板
+                    HWPFDocument doc = new HWPFDocument(is);
+                    Range range = doc.getRange();       //获取这一页模板上面的文字
+                    int j1 = j * 4;                //j1=0,4,8,12...___________________这是班级的编号
+                    int classFlag = 1;            //作为${clssName1}和${stuName1}的索引
+                    for (int k = j1; k < j1 + 4; k++) {   //对应每页的4个班的班级的编号
+                        String class_name_X = classlist.get(i);       //数据
+                        String stu_name_X = "";
+                        for (int m = 0; m < awardsNum[i][j1]; m++) {     //_____________这是学生的编号
+                            stu_name_X = stu_name_X + data[i][j1][m] + "    ";
+                        }
+                        if(k%4==0){
+                            range.replaceText("${schoolName}", "护理学院");
+                            range.replaceText("${marks}", marksOfAwards(awardsList.get(i)));
+                        }
+                        range.replaceText("${clssName" + classFlag + "}", class_name_X);
+                        range.replaceText("${stuName" + classFlag + "}", stu_name_X);
+                        classFlag++;
+                    }
+                    range.replaceText("${year}",""+Calendar.getInstance().get(Calendar.YEAR));
+                    range.replaceText("${award}", awardsList.get(i));
+
+                    OutputStream os = new FileOutputStream(OUTPUT_PATH + awardsList.get(i) + j1 + ".doc");
+                    //把doc输出到输出流中
+                    doc.write(os);
+                    //关闭输出流，这里每一页的生成，都对应一个输入流和一个输出流，所以每一页生成完毕之后都要关闭一次输入输出流
+                    try {
+                        os.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    //关闭输入流
+                    try {
+                        is.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+
+                //单独生成最后一页的
+                InputStream is = new FileInputStream(WT_PATH.replace("wt4","wt"+yeLast));      //导入模板
+                HWPFDocument doc = new HWPFDocument(is);
+                Range range = doc.getRange();       //获取这一页模板上面的文字
+                int j1 = (classInAwards[i]/4) * 4;                //j1=0,4,8,12..._____________这是班级的编号(这个奖项的第几个班级)
+                int classFlag = 1;            //作为${clssName1}和${stuName1}的索引
+                for (int k = j1; k < j1 + 4; k++) {   //对应每页的4个班的班级的编号
+                    String class_name_X = classlist.get(i);       //数据
+                    String stu_name_X = "";
+                    for (int m = 0; m < awardsNum[i][j1]; m++) {     //_____________这是学生的编号
+                        stu_name_X = stu_name_X + data[i][j1][m] + "    ";
+                    }
+                    if(k%4==0){
+                        range.replaceText("${schoolName}", "护理学院");
+                        range.replaceText("${marks}", marksOfAwards(awardsList.get(i)));
+                    }
+                    range.replaceText("${clssName" + classFlag + "}", class_name_X);
+                    range.replaceText("${stuName" + classFlag + "}", stu_name_X);
+                    classFlag++;
+                }
+                range.replaceText("${year}",""+Calendar.getInstance().get(Calendar.YEAR));
+                range.replaceText("${award}", awardsList.get(i));
+
+                OutputStream os = new FileOutputStream(OUTPUT_PATH + awardsList.get(i) + j1 + ".doc");
+                //把doc输出到输出流中
+                doc.write(os);
+                //关闭输出流，这里每一页的生成，都对应一个输入流和一个输出流，所以每一页生成完毕之后都要关闭一次输入输出流
+                try {
+                    os.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                //关闭输入流
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
 //        for(int i=0;i<data.length;i++){         //外层循环，奖项的数量
