@@ -57,13 +57,14 @@ public class FileUtil {
                     }
                 }
             }
+            //妈的源文件里各种中文英文括号混杂，唉我能怎么办啊，我也很绝望啊
             for(int school=rolsOfSchoolName+1;school<(Rows-rolsOfSchoolName);school++){
                 Map<String,Object> map=new HashMap<>();
-                map.put("school",sheet.getCell(colsOfSchoolName,school   ).getContents());
-                map.put("class",sheet.getCell(colsOfClassName,  school   ).getContents());
-                map.put("name",sheet.getCell(colsOfStuName,     school   ).getContents());
-                map.put("award",sheet.getCell(colsOfAwards,     school   ).getContents());
-                map.put("marks",sheet.getCell(colsOfMarks,      school   ).getContents());
+                map.put("school",sheet.getCell(colsOfSchoolName,school).getContents().replace("(","（").replace(")","）").replace(" ", ""));
+                map.put("class",sheet.getCell(colsOfClassName,  school).getContents().replace("(","（").replace(")","）").replace(" ", ""));
+                map.put("name",sheet.getCell(colsOfStuName,     school).getContents().replace("(","（").replace(")","）").replace(" ", ""));
+                map.put("award",sheet.getCell(colsOfAwards,     school).getContents().replace("(","（").replace(")","）").replace(" ", ""));
+                map.put("marks",sheet.getCell(colsOfMarks,      school).getContents().replace("(","（").replace(")","）").replace(" ", ""));
                 data.add(map);
             }
             book.close();

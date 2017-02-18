@@ -151,37 +151,65 @@ public class Main {
      * @throws Exception IO异常
      */
     public static void wordOutPut(String[][][] data,int[][] awardsNum,int[] classInAwards) throws Exception{
-        String out_path=OUTPUT_PATH+"test.doc";
-        int num=0;
         for(int i=0;i<data.length;i++){     //________________________________i是奖项的编号
 
             if(classInAwards[i]%4==0){      //这个奖项最后一页套用wt4
-
                 int ye=classInAwards[i]/4;
+                int xunFlag=0;//循环的flag
+                int ye_newID=0;//生成的文件名的索引
                 for(int j=0;j<ye;j++) {          //每页每页的生成
                     InputStream is = new FileInputStream(WT_PATH);      //导入模板
                     HWPFDocument doc = new HWPFDocument(is);
                     Range range = doc.getRange();       //获取这一页模板上面的文字
-                    int j1 = j * 4;                //j1=0,4,8,12...___________________这是班级的编号
-                    int classFlag = 1;            //作为${clssName1}和${stuName1}的索引
-                    for (int k = j1; k < j1 + 4; k++) {   //对应每页的4个班的班级的编号
-                        String class_name_X = classlist.get(i);       //数据
-                        String stu_name_X = "";
-                        for (int m = 0; m < awardsNum[i][j1]; m++) {     //_____________这是学生的编号
-                            stu_name_X = stu_name_X + data[i][j1][m] + "    ";
-                        }
-                        if(k%4==0){
-                            range.replaceText("${schoolName}", "护理学院");
-                            range.replaceText("${marks}", marksOfAwards(awardsList.get(i)));
-                        }
-                        range.replaceText("${clssName" + classFlag + "}", class_name_X);
-                        range.replaceText("${stuName" + classFlag + "}", stu_name_X);
-                        classFlag++;
-                    }
+                    range.replaceText("${schoolName}", "护理学院");
+                    range.replaceText("${marks}", marksOfAwards(awardsList.get(i)));
                     range.replaceText("${year}",""+Calendar.getInstance().get(Calendar.YEAR));
                     range.replaceText("${award}", awardsList.get(i));
+                    int class_flag=1;//作为 替换${stuname1},${stuname2}的索引
+                    for(int k=1;k<k+4;k++){           //k保证了足够4组班级——学生的数据之后才换
+                        if(xunFlag>=classlist.size()){
+                            break;
+                        }else if(awardsNum[i][xunFlag]!=0){
+                            //这个奖项的这个班级里面有人,构造classname数据
+                            String class_name_X = classlist.get(xunFlag);       //数据
+                            String stu_name_X = "";
+                            for(int m=0;m<awardsNum[i][xunFlag];m++){       //_____m学生编号，xunFlag班级编号，i是奖项编号
+                                //构造stuname数据
+                                stu_name_X = stu_name_X + data[i][xunFlag][m] + "    ";
+                            }
+                            range.replaceText("${clssName" + class_flag + "}", class_name_X);
+                            range.replaceText("${stuName" + (class_flag++) + "}", stu_name_X);
+//                            k++;
+                            xunFlag++;
+                        }else {
+                            //这个奖项的这个班级里面没有人
+                            xunFlag++;
+                            k--;
+                        }
+                    }
+//                    int j1 = j * 4;                //j1=0,4,8,12...___________________这是班级的编号
+//                    int classFlag = 1;            //作为${clssName1}和${stuName1}的索引
+//                    for (int k = j1; k < j1 + 4; k++) {   //对应每页的4个班的班级的编号
+//                        if(awardsNum[i][k]!=0){           //如果这个班级在这个奖项上面，有人获得
+//                            String class_name_X = classlist.get(k);       //数据
+//                            String stu_name_X = "";
+//                            for (int m = 0; m < awardsNum[i][k]; m++) {     //_____________这是学生的编号
+//                                if (data[i][k][m]!=null){
+//                                    stu_name_X = stu_name_X + data[i][k][m] + "    ";
+//                                }else {
+//                                    break;
+//                                }
+//                            }
+//                            range.replaceText("${clssName" + classFlag + "}", class_name_X);
+//                            range.replaceText("${stuName" + classFlag + "}", stu_name_X);
+//                            classFlag++;
+//                        }else {
+//                            k--;
+//                        }
+//
+//                    }
 
-                    OutputStream os = new FileOutputStream(OUTPUT_PATH + awardsList.get(i) + j1 + ".doc");
+                    OutputStream os = new FileOutputStream(OUTPUT_PATH + awardsList.get(i) + (ye_newID++) + ".doc");
                     //把doc输出到输出流中
                     doc.write(os);
                     //关闭输出流，这里每一页的生成，都对应一个输入流和一个输出流，所以每一页生成完毕之后都要关闭一次输入输出流
@@ -198,34 +226,134 @@ public class Main {
                     }
 
                 }
-            }
-            else {          //这个奖项最后一页套用wt1或者2或者3
+//                int ye=classInAwards[i]/4;
+//                int yeLast=classInAwards[i]%4;
+//                int xunFlag=0;//循环的flag
+//                int ye_newID=0;//生成的文件名的索引
+//                for(int j=0;j<ye;j++) {          //每页每页的生成
+//                    InputStream is = new FileInputStream(WT_PATH);      //导入模板
+//                    HWPFDocument doc = new HWPFDocument(is);
+//                    Range range = doc.getRange();       //获取这一页模板上面的文字
+//                    range.replaceText("${schoolName}", "护理学院");
+//                    range.replaceText("${marks}", marksOfAwards(awardsList.get(i)));
+//                    range.replaceText("${year}",""+Calendar.getInstance().get(Calendar.YEAR));
+//                    range.replaceText("${award}", awardsList.get(i));
+//                    for(int k=1;k<k+4;k++){           //k保证了足够4组班级——学生的数据之后才换
+//                        if(awardsNum[i][xunFlag]!=0){
+//                            //这个奖项的这个班级里面有人,构造classname数据
+//                            String class_name_X = classlist.get(xunFlag);       //数据
+//                            String stu_name_X = "";
+//                            for(int m=0;m<awardsNum[i][xunFlag];m++){       //_____m学生编号，xunFlag班级编号，i是奖项编号
+//                                //构造stuname数据
+//                                stu_name_X = stu_name_X + data[i][xunFlag][m] + "    ";
+//                            }
+//                            range.replaceText("${clssName" + k + "}", class_name_X);
+//                            range.replaceText("${stuName" + k + "}", stu_name_X);
+//                            k++;
+//                            xunFlag++;
+//                        }else {
+//                            //这个奖项的这个班级里面没有人
+//                            xunFlag++;
+//                            k--;
+//                        }
+//                    }
+////                    int j1 = j * 4;                //j1=0,4,8,12...___________________这是班级的编号
+////                    int classFlag = 1;            //作为${clssName1}和${stuName1}的索引
+////                    for (int k = j1; k < j1 + 4; k++) {   //对应每页的4个班的班级的编号
+////                        if(awardsNum[i][k]!=0){           //如果这个班级在这个奖项上面，有人获得
+////                            String class_name_X = classlist.get(k);       //数据
+////                            String stu_name_X = "";
+////                            for (int m = 0; m < awardsNum[i][k]; m++) {     //_____________这是学生的编号
+////                                if (data[i][k][m]!=null){
+////                                    stu_name_X = stu_name_X + data[i][k][m] + "    ";
+////                                }else {
+////                                    break;
+////                                }
+////                            }
+////                            range.replaceText("${clssName" + classFlag + "}", class_name_X);
+////                            range.replaceText("${stuName" + classFlag + "}", stu_name_X);
+////                            classFlag++;
+////                        }else {
+////                            k--;
+////                        }
+////
+////                    }
+//
+//                    OutputStream os = new FileOutputStream(OUTPUT_PATH + awardsList.get(i) + (ye_newID++) + ".doc");
+//                    //把doc输出到输出流中
+//                    doc.write(os);
+//                    //关闭输出流，这里每一页的生成，都对应一个输入流和一个输出流，所以每一页生成完毕之后都要关闭一次输入输出流
+//                    try {
+//                        os.close();
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
+//                    //关闭输入流
+//                    try {
+//                        is.close();
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
+//
+//                }
+            }else {          //这个奖项最后一页套用wt1或者2或者3
                 int ye=classInAwards[i]/4;
                 int yeLast=classInAwards[i]%4;
+                int xunFlag=0;//循环的flag
+                int ye_newID=0;//生成的文件名的索引
                 for(int j=0;j<ye;j++) {          //每页每页的生成
                     InputStream is = new FileInputStream(WT_PATH);      //导入模板
                     HWPFDocument doc = new HWPFDocument(is);
                     Range range = doc.getRange();       //获取这一页模板上面的文字
-                    int j1 = j * 4;                //j1=0,4,8,12...___________________这是班级的编号
-                    int classFlag = 1;            //作为${clssName1}和${stuName1}的索引
-                    for (int k = j1; k < j1 + 4; k++) {   //对应每页的4个班的班级的编号
-                        String class_name_X = classlist.get(i);       //数据
-                        String stu_name_X = "";
-                        for (int m = 0; m < awardsNum[i][j1]; m++) {     //_____________这是学生的编号
-                            stu_name_X = stu_name_X + data[i][j1][m] + "    ";
-                        }
-                        if(k%4==0){
-                            range.replaceText("${schoolName}", "护理学院");
-                            range.replaceText("${marks}", marksOfAwards(awardsList.get(i)));
-                        }
-                        range.replaceText("${clssName" + classFlag + "}", class_name_X);
-                        range.replaceText("${stuName" + classFlag + "}", stu_name_X);
-                        classFlag++;
-                    }
+                    range.replaceText("${schoolName}", "护理学院");
+                    range.replaceText("${marks}", marksOfAwards(awardsList.get(i)));
                     range.replaceText("${year}",""+Calendar.getInstance().get(Calendar.YEAR));
                     range.replaceText("${award}", awardsList.get(i));
+                    int class_flag=1;//作为 替换${stuname1},${stuname2}的索引
+                    for(int k=1;k<k+4;k++){           //k保证了足够4组班级——学生的数据之后才换
+                        if(xunFlag>=classlist.size()){
+                            break;
+                        }else if(awardsNum[i][xunFlag]!=0){
+                            //这个奖项的这个班级里面有人,构造classname数据
+                            String class_name_X = classlist.get(xunFlag);       //数据
+                            String stu_name_X = "";
+                            for(int m=0;m<awardsNum[i][xunFlag];m++){       //_____m学生编号，xunFlag班级编号，i是奖项编号
+                                //构造stuname数据
+                                stu_name_X = stu_name_X + data[i][xunFlag][m] + "    ";
+                            }
+                            range.replaceText("${clssName" + class_flag + "}", class_name_X);
+                            range.replaceText("${stuName" + (class_flag++) + "}", stu_name_X);
+//                            k++;
+                            xunFlag++;
+                        }else {
+                            //这个奖项的这个班级里面没有人
+                            xunFlag++;
+                            k--;
+                        }
+                    }
+//                    int j1 = j * 4;                //j1=0,4,8,12...___________________这是班级的编号
+//                    int classFlag = 1;            //作为${clssName1}和${stuName1}的索引
+//                    for (int k = j1; k < j1 + 4; k++) {   //对应每页的4个班的班级的编号
+//                        if(awardsNum[i][k]!=0){           //如果这个班级在这个奖项上面，有人获得
+//                            String class_name_X = classlist.get(k);       //数据
+//                            String stu_name_X = "";
+//                            for (int m = 0; m < awardsNum[i][k]; m++) {     //_____________这是学生的编号
+//                                if (data[i][k][m]!=null){
+//                                    stu_name_X = stu_name_X + data[i][k][m] + "    ";
+//                                }else {
+//                                    break;
+//                                }
+//                            }
+//                            range.replaceText("${clssName" + classFlag + "}", class_name_X);
+//                            range.replaceText("${stuName" + classFlag + "}", stu_name_X);
+//                            classFlag++;
+//                        }else {
+//                            k--;
+//                        }
+//
+//                    }
 
-                    OutputStream os = new FileOutputStream(OUTPUT_PATH + awardsList.get(i) + j1 + ".doc");
+                    OutputStream os = new FileOutputStream(OUTPUT_PATH + awardsList.get(i) + (ye_newID++) + ".doc");
                     //把doc输出到输出流中
                     doc.write(os);
                     //关闭输出流，这里每一页的生成，都对应一个输入流和一个输出流，所以每一页生成完毕之后都要关闭一次输入输出流
@@ -243,30 +371,58 @@ public class Main {
 
                 }
 
-                //单独生成最后一页的
                 InputStream is = new FileInputStream(WT_PATH.replace("wt4","wt"+yeLast));      //导入模板
                 HWPFDocument doc = new HWPFDocument(is);
                 Range range = doc.getRange();       //获取这一页模板上面的文字
-                int j1 = (classInAwards[i]/4) * 4;                //j1=0,4,8,12..._____________这是班级的编号(这个奖项的第几个班级)
-                int classFlag = 1;            //作为${clssName1}和${stuName1}的索引
-                for (int k = j1; k < j1 + 4; k++) {   //对应每页的4个班的班级的编号
-                    String class_name_X = classlist.get(i);       //数据
-                    String stu_name_X = "";
-                    for (int m = 0; m < awardsNum[i][j1]; m++) {     //_____________这是学生的编号
-                        stu_name_X = stu_name_X + data[i][j1][m] + "    ";
-                    }
-                    if(k%4==0){
-                        range.replaceText("${schoolName}", "护理学院");
-                        range.replaceText("${marks}", marksOfAwards(awardsList.get(i)));
-                    }
-                    range.replaceText("${clssName" + classFlag + "}", class_name_X);
-                    range.replaceText("${stuName" + classFlag + "}", stu_name_X);
-                    classFlag++;
-                }
+                range.replaceText("${schoolName}", "护理学院");
+                range.replaceText("${marks}", marksOfAwards(awardsList.get(i)));
                 range.replaceText("${year}",""+Calendar.getInstance().get(Calendar.YEAR));
                 range.replaceText("${award}", awardsList.get(i));
+                int class_flag=1;//作为 替换${stuname1},${stuname2}的索引
+                for(int k=1;k<k+4;k++){           //k保证了足够4组班级——学生的数据之后才换
+                    if(xunFlag>=classlist.size()){
+                        break;
+                    }else if(awardsNum[i][xunFlag]!=0){
+                        //这个奖项的这个班级里面有人,构造classname数据
+                        String class_name_X = classlist.get(xunFlag);       //数据
+                        String stu_name_X = "";
+                        for(int m=0;m<awardsNum[i][xunFlag];m++){       //_____m学生编号，xunFlag班级编号，i是奖项编号
+                            //构造stuname数据
+                            stu_name_X = stu_name_X + data[i][xunFlag][m] + "    ";
+                        }
+                        range.replaceText("${clssName" + class_flag + "}", class_name_X);
+                        range.replaceText("${stuName" + (class_flag++) + "}", stu_name_X);
+//                        k++;
+                        xunFlag++;
+                    }else {
+                        //这个奖项的这个班级里面没有人
+                        xunFlag++;
+                        k--;
+                    }
+                }
+//                    int j1 = j * 4;                //j1=0,4,8,12...___________________这是班级的编号
+//                    int classFlag = 1;            //作为${clssName1}和${stuName1}的索引
+//                    for (int k = j1; k < j1 + 4; k++) {   //对应每页的4个班的班级的编号
+//                        if(awardsNum[i][k]!=0){           //如果这个班级在这个奖项上面，有人获得
+//                            String class_name_X = classlist.get(k);       //数据
+//                            String stu_name_X = "";
+//                            for (int m = 0; m < awardsNum[i][k]; m++) {     //_____________这是学生的编号
+//                                if (data[i][k][m]!=null){
+//                                    stu_name_X = stu_name_X + data[i][k][m] + "    ";
+//                                }else {
+//                                    break;
+//                                }
+//                            }
+//                            range.replaceText("${clssName" + classFlag + "}", class_name_X);
+//                            range.replaceText("${stuName" + classFlag + "}", stu_name_X);
+//                            classFlag++;
+//                        }else {
+//                            k--;
+//                        }
+//
+//                    }
 
-                OutputStream os = new FileOutputStream(OUTPUT_PATH + awardsList.get(i) + j1 + ".doc");
+                OutputStream os = new FileOutputStream(OUTPUT_PATH + awardsList.get(i) + (ye_newID++) + ".doc");
                 //把doc输出到输出流中
                 doc.write(os);
                 //关闭输出流，这里每一页的生成，都对应一个输入流和一个输出流，所以每一页生成完毕之后都要关闭一次输入输出流
@@ -281,6 +437,49 @@ public class Main {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                //单独生成最后一页的
+//                InputStream is = new FileInputStream(WT_PATH.replace("wt4","wt"+yeLast));      //导入模板
+//                HWPFDocument doc = new HWPFDocument(is);
+//                Range range = doc.getRange();       //获取这一页模板上面的文字
+//                range.replaceText("${schoolName}", "护理学院");
+//                range.replaceText("${marks}", marksOfAwards(awardsList.get(i)));
+////                int j1 =xunFlag;                //j1=0,4,8,12..._____________这是班级的编号(这个奖项的第几个班级)
+////                int classFlag = 1;            //作为${clssName1}和${stuName1}的索引
+//
+//                //替换四个班级名称和学生名称
+//                for (int k = j1; k < j1 + yeLast; k++) {   //对应每页的4个班的班级的编号
+//                    String class_name_X = classlist.get(k);       //数据
+//                    String stu_name_X = "";
+//                    for (int m = 0; m < awardsNum[i][k]; m++) {     //_____________这是学生的编号
+//                        if (data[i][k][m]!=null){
+//                            stu_name_X = stu_name_X + data[i][k][m] + "    ";
+//                        }else {
+//                            break;
+//                        }
+//                    }
+//
+//                    range.replaceText("${clssName" + classFlag + "}", class_name_X);
+//                    range.replaceText("${stuName" + classFlag + "}", stu_name_X);
+//                    classFlag++;
+//                }
+//                range.replaceText("${year}",""+Calendar.getInstance().get(Calendar.YEAR));
+//                range.replaceText("${award}", awardsList.get(i));
+//
+//                OutputStream os = new FileOutputStream(OUTPUT_PATH + awardsList.get(i) + j1 + ".doc");
+//                //把doc输出到输出流中
+//                doc.write(os);
+//                //关闭输出流，这里每一页的生成，都对应一个输入流和一个输出流，所以每一页生成完毕之后都要关闭一次输入输出流
+//                try {
+//                    os.close();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//                //关闭输入流
+//                try {
+//                    is.close();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
             }
         }
 //        for(int i=0;i<data.length;i++){         //外层循环，奖项的数量
@@ -375,32 +574,5 @@ public class Main {
         return map;
     }
 
-
-    public static void testWrite(String WT_PATH,String WORD_PATH) throws Exception {
-        String templatePath = WT_PATH;
-        InputStream is = new FileInputStream(templatePath);
-        HWPFDocument doc = new HWPFDocument(is);
-        Range range = doc.getRange();
-
-        //开始替换文本
-        range.replaceText("${appleAmt}", "100.00");
-        range.replaceText("${bananaAmt}", "200.00");
-        range.replaceText("${totalAmt}", "300.00");
-        OutputStream os = new FileOutputStream("D:\\word\\write.doc");
-        //把doc输出到输出流中
-        doc.write(os);
-
-        //关闭输入输出流
-        try {
-            os.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            is.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
 }
