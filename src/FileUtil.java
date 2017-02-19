@@ -35,23 +35,23 @@ public class FileUtil {
             for (int i = 0; i < Cols; ++i) {
                 for (int j = 0; j < Rows; ++j) {
                     // getCell(Col"列",Row"行")获得单元格的值
-                    if(sheet.getCell(i,j).getContents().equals("学院")){
+                    if(sheet.getCell(i,j).getContents().replace(" ", "").equals("学院")){
                         colsOfSchoolName=i;
                         rolsOfSchoolName=j;
                     }
-                    if(sheet.getCell(i,j).getContents().equals("班级")){
+                    if(sheet.getCell(i,j).getContents().replace(" ", "").equals("班级")){
                         colsOfClassName=i;
                         rolsOfclassName=j;
                     }
-                    if(sheet.getCell(i,j).getContents().equals("姓名")){
+                    if(sheet.getCell(i,j).getContents().replace(" ", "").equals("姓名")){
                         colsOfStuName=i;
                         rolsOfStuName=j;
                     }
-                    if(sheet.getCell(i,j).getContents().equals("所获奖项")){
+                    if(sheet.getCell(i,j).getContents().replace(" ", "").equals("所获奖项")){
                         colsOfAwards=i;
                         rolsOfAwards=j;
                     }
-                    if(sheet.getCell(i,j).getContents().equals("分值")) {
+                    if(sheet.getCell(i,j).getContents().replace(" ", "").equals("分值")) {
                         colsOfMarks = i;
                         rolsOfMarks = j;
                     }
@@ -77,7 +77,6 @@ public class FileUtil {
         }
         return data;
     }
-
 
 
 }
