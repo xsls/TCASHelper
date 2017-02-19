@@ -169,7 +169,10 @@ public class Main {
                     for(int k=1;k<k+4;k++){           //k保证了足够4组班级——学生的数据之后才换
                         if(xunFlag>=classlist.size()){
                             break;
-                        }else if(awardsNum[i][xunFlag]!=0){
+                        }if(k>=5){
+                            break;
+                        }
+                        if(awardsNum[i][xunFlag]!=0){
                             //这个奖项的这个班级里面有人,构造classname数据
                             String class_name_X = classlist.get(xunFlag);       //数据
                             String stu_name_X = "";
@@ -299,21 +302,27 @@ public class Main {
             }else {          //这个奖项最后一页套用wt1或者2或者3
                 int ye=classInAwards[i]/4;
                 int yeLast=classInAwards[i]%4;
-                int xunFlag=0;//循环的flag
+                int xunFlag=0;//班级循环访问的flag，每个奖项遍历开始时候重置一遍
                 int ye_newID=0;//生成的文件名的索引
                 for(int j=0;j<ye;j++) {          //每页每页的生成
                     InputStream is = new FileInputStream(WT_PATH);      //导入模板
                     HWPFDocument doc = new HWPFDocument(is);
                     Range range = doc.getRange();       //获取这一页模板上面的文字
+
+                    //这个页面上面一些共有信息的初始化
                     range.replaceText("${schoolName}", "护理学院");
                     range.replaceText("${marks}", marksOfAwards(awardsList.get(i)));
                     range.replaceText("${year}",""+Calendar.getInstance().get(Calendar.YEAR));
                     range.replaceText("${award}", awardsList.get(i));
+
+                    //开始为这个页面填充具体的className和stuName
                     int class_flag=1;//作为 替换${stuname1},${stuname2}的索引
-                    for(int k=1;k<k+4;k++){           //k保证了足够4组班级——学生的数据之后才换
+                    int k=1;
+                    while (k<5){           //k保证了足够4组班级——学生的数据之后才换
                         if(xunFlag>=classlist.size()){
                             break;
-                        }else if(awardsNum[i][xunFlag]!=0){
+                        }
+                        if(awardsNum[i][xunFlag]!=0){
                             //这个奖项的这个班级里面有人,构造classname数据
                             String class_name_X = classlist.get(xunFlag);       //数据
                             String stu_name_X = "";
@@ -321,14 +330,14 @@ public class Main {
                                 //构造stuname数据
                                 stu_name_X = stu_name_X + data[i][xunFlag][m] + "    ";
                             }
-                            range.replaceText("${clssName" + class_flag + "}", class_name_X);
-                            range.replaceText("${stuName" + (class_flag++) + "}", stu_name_X);
-//                            k++;
+                            range.replaceText("${clssName" + (class_flag%4+1) + "}", class_name_X);
+                            range.replaceText("${stuName" + (class_flag%4+1) + "}", stu_name_X);
+                            class_flag++;
+                            k++;
                             xunFlag++;
                         }else {
                             //这个奖项的这个班级里面没有人
                             xunFlag++;
-                            k--;
                         }
                     }
 //                    int j1 = j * 4;                //j1=0,4,8,12...___________________这是班级的编号
@@ -379,10 +388,14 @@ public class Main {
                 range.replaceText("${year}",""+Calendar.getInstance().get(Calendar.YEAR));
                 range.replaceText("${award}", awardsList.get(i));
                 int class_flag=1;//作为 替换${stuname1},${stuname2}的索引
-                for(int k=1;k<k+4;k++){           //k保证了足够4组班级——学生的数据之后才换
+                for(int k=1;k<k+4;){           //k保证了足够4组班级——学生的数据之后才换
                     if(xunFlag>=classlist.size()){
                         break;
-                    }else if(awardsNum[i][xunFlag]!=0){
+                    }
+                    if(k>=5){
+                        break;
+                    }
+                    if(awardsNum[i][xunFlag]!=0){
                         //这个奖项的这个班级里面有人,构造classname数据
                         String class_name_X = classlist.get(xunFlag);       //数据
                         String stu_name_X = "";
@@ -391,13 +404,13 @@ public class Main {
                             stu_name_X = stu_name_X + data[i][xunFlag][m] + "    ";
                         }
                         range.replaceText("${clssName" + class_flag + "}", class_name_X);
-                        range.replaceText("${stuName" + (class_flag++) + "}", stu_name_X);
-//                        k++;
+                        range.replaceText("${stuName" + class_flag+ "}", stu_name_X);
+                        class_flag++;
+                        k++;
                         xunFlag++;
                     }else {
                         //这个奖项的这个班级里面没有人
                         xunFlag++;
-                        k--;
                     }
                 }
 //                    int j1 = j * 4;                //j1=0,4,8,12...___________________这是班级的编号
