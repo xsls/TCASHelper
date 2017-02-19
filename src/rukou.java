@@ -2,8 +2,7 @@ import com.sun.deploy.uitoolkit.impl.fx.ui.FXMessageDialog;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 
 /**
  *
@@ -31,22 +30,21 @@ public class rukou {
         frame.pack();
         frame.setVisible(true);
 
-        Dialog dialog=new Dialog(frame, "提示信息-self", true);
+        Dialog dialog=new Dialog(frame, "关于作者", true);
         dialog.setBounds(400, 200, 350, 150);
         dialog.setLayout(new FlowLayout());//设置弹出对话框的布局为流式布局
         Label lab = new Label();//创建lab标签填写提示内容
-        Button okBut = new Button("close");//创建确定按钮
-        lab.setText("陈重围做的一个小软件，为了校团委");
+        lab.setText("Ericwyn in GDPU (Email:Ericwyn.chen@gmail.com)");
 
         dialog.add(lab);
-        dialog.add(okBut);
         dialog.setVisible(false);
-
-        okBut.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+        dialog.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
                 dialog.setVisible(false);
             }
         });
+
         helpItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
