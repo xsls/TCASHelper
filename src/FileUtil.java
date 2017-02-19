@@ -62,7 +62,11 @@ public class FileUtil {
                 Map<String,Object> map=new HashMap<>();
                 map.put("school",sheet.getCell(colsOfSchoolName,school).getContents().replace("(","（").replace(")","）").replace(" ", ""));
                 map.put("class",sheet.getCell(colsOfClassName,  school).getContents().replace("(","（").replace(")","）").replace(" ", ""));
-                map.put("name",sheet.getCell(colsOfStuName,     school).getContents().replace("(","（").replace(")","）").replace(" ", ""));
+                String name=sheet.getCell(colsOfStuName,     school).getContents().replace("(","（").replace(")","）").replace(" ", "");
+                if(name.length()==2){
+                    name=name.charAt(0)+"  "+name.charAt(1);
+                }
+                map.put("name",name);
                 map.put("award",sheet.getCell(colsOfAwards,     school).getContents().replace("(","（").replace(")","）").replace(" ", ""));
                 map.put("marks",sheet.getCell(colsOfMarks,      school).getContents().replace("(","（").replace(")","）").replace(" ", ""));
                 data.add(map);

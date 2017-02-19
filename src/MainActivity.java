@@ -13,16 +13,30 @@ import java.util.*;
  */
 
 
-public class Main {
-    private static final String EXCEL_PATH="E:\\Chaos\\IntiliJ Java Project\\TCAS\\testExcelAndWord\\护理学院五四表彰获奖项目.xls".replace("\\\\","/");
-    private static String WT_PATH="E:\\Chaos\\IntiliJ Java Project\\TCAS\\wordTemplate\\wt4.doc".replace("\\\\","/");
-    private static String OUTPUT_PATH="E:\\Chaos\\IntiliJ Java Project\\TCAS\\output\\".replace("\\\\","/");
-    private static final List<Map<String ,Object>> list_ofData=FileUtil.readExcel(EXCEL_PATH);
-    private static final HashMap<String,Object> marksMap=getMarksMap(list_ofData);
+public class MainActivity {
+
+    private static String EXCEL_PATH;
+    private static String WT_PATH;
+    private static String OUTPUT_PATH;
+    private static List<Map<String ,Object>> list_ofData;
+    private static HashMap<String,Object> marksMap;
     private static List<String> classlist=new ArrayList<>();
     private static List<String > awardsList=new ArrayList<>();
 
-    public static void main(String args[]) throws Exception{
+    /**
+     * 迷幻的初始化
+     * @param excel_path 传进来的excel的路径
+     * @param out_path  输出的文件夹路径
+     */
+    public MainActivity(String excel_path, String out_path){
+        EXCEL_PATH="E:\\Chaos\\IntiliJ Java Project\\TCAS\\testExcelAndWord\\护理学院五四表彰获奖项目.xls".replace("\\\\","/");
+        WT_PATH="E:\\Chaos\\IntiliJ Java Project\\TCAS\\wordTemplate\\wt4.doc".replace("\\\\","/");
+        OUTPUT_PATH="E:\\Chaos\\IntiliJ Java Project\\TCAS\\output\\".replace("\\\\","/");
+        list_ofData=FileUtil.readExcel(EXCEL_PATH);
+        marksMap=getMarksMap(list_ofData);
+    }
+
+    public void mainAct() throws Exception{
 
         //先对奖项进行分组
 //        Set<Map<String,Object>> awardsSet=new HashSet<>();
